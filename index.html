@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parcel Sandbox</title>
+    <meta charset="UTF-8" />
+  </head>
+
+  <body>
+    <div class="navbar-fixed">
+      <nav>
+        <div class="nav-wrapper teal">
+          <a href="#!" class="left brand-logo">FireText</a>
+          <ul class="right down">
+            <li>
+              <a class="teal lighten-2" onclick="switchUser()">Switch User</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div id="chat-area"></div>
+    <br /><br /><br /><br />
+    <div class="row chat-window">
+      <div class="col s10">
+        <input type="text" class="left white" id="texting" />
+      </div>
+      <button class="col s2 btn" onclick="send()">Send</button>
+    </div>
+
+    <!-- Compiled and minified CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-database.js"></script>
+    <script>
+      document.getElementById("chat-area").innerHTML = "";
+      var a = false;
+      let params = new URLSearchParams(location.search);
+      let user = params.get("user");
+      document.getElementById("texting").value = params.get("name");
+      //document.getElementById("texting").setValue(params.get("name"));
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyDw2KAotZxxaFAvWc_lu83IQGhsvSlWUYg",
+        authDomain: "jessie-13b1c.firebaseapp.com",
+        databaseURL: "https://jessie-13b1c-default-rtdb.firebaseio.com",
+        projectId: "jessie-13b1c",
+        storageBucket: "jessie-13b1c.appspot.com",
+        messagingSenderId: "59777334757",
+        appId: "1:59777334757:web:32e4fe7a8c926e23fec30c"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      auth
+        .signInWithEmailAndPassword(params.get("email"), params.get("pass"))
+        .catch(function (error) {
+          auth.createUserWithEmailAndPassword(
+            params.get("email"),
+            params.get("pass")
+          );
+        });
+
+      let database = firebase.database();
+
+      auth.onAuthStateChanged((firebaseUser) => {
+        var ref = database.ref("users/" + auth.currentUser.uid);
+        ref.push(" ");
+        var ref = database.ref("users/" + auth.currentUser.uid);
+        ref.on("value", function (e) {
+          document.getElementById("chat-area").innerHTML = "";
+          var keys = Object.keys(e.val());
+          for (var i = 0; i < keys.length; i++) {
+            var ref2 = database.ref(
+              "users/" + auth.currentUser.uid + "/" + keys[i]
+            );
+            if (params.get("user") == 2) {
+              ref2.on("value", function (de) {
+                document.getElementById("chat-area").innerHTML +=
+                  "<div class='speech-bubble" +
+                  de.val().substring(0, 1) +
+                  "'>" +
+                  de.val().substring(1) +
+                  "</div>";
+              });
+            } else {
+              ref2.on("value", function (de) {
+                document.getElementById("chat-area").innerHTML +=
+                  "<div class='speech-bubble" +
+                  ((parseInt(de.val().substring(0, 1)) % 2) + 1) +
+                  "'>" +
+                  de.val().substring(1) +
+                  "</div>";
+              });
+            }
+          }
+        });
+      });
+      function send() {
+        document.getElementById("chat-area").innerHTML = "";
+        let ref = database.ref("users/" + auth.currentUser.uid);
+        ref.push(params.get("user") + document.getElementById("texting").value);
+        document.getElementById("texting").value = "";
+      }
+      // Get the input field
+      var input = document.getElementById("texting");
+
+      // Execute a function when the user releases a key on the keyboard
+      input.addEventListener("keyup", function (event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          send();
+        }
+      });
+
+      function switchUser() {
+        let g = params.get("user");
+        g = (g % 2) + 1;
+        location.search =
+          location.search.substring(0, location.search.length - 1) + g;
+      }
+    </script>
+    <style>
+      .chat-window {
+        position: fixed;
+        bottom: -27px;
+        right: 10px;
+        width: 100%;
+      }
+      .nav-wrapper {
+        position: fixed;
+        top: 0px;
+        position: sticky;
+      }
+      .speech-bubble1 {
+        font-size: 1.2em;
+        width: 75%;
+        padding: 2%;
+        position: relative;
+        background: #cccccc;
+        border-radius: 0.1em;
+      }
+
+      .speech-bubble1:after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 5%;
+        width: 0;
+        height: 0;
+        border: 20px solid transparent;
+        border-top-color: #cccccc;
+        border-bottom: 0;
+        border-left: 0;
+        margin-left: -10px;
+        margin-bottom: -20px;
+      }
+      .speech-bubble2 {
+        font-size: 1.2em;
+        width: 75%;
+        padding: 2%;
+        position: relative;
+        left: 25%;
+        background: #03724d;
+        border-radius: 0.1em;
+      }
+
+      .speech-bubble2:after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 5%;
+        width: 0;
+        height: 0;
+        border: 20px solid transparent;
+        border-top-color: #03724d;
+        border-bottom: 0;
+        border-right: 0;
+        margin-right: -10px;
+        margin-bottom: -20px;
+      }
+    </style>
+  </body>
+</html>

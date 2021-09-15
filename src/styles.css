@@ -1,0 +1,11 @@
+body {
+  font-family: sans-serif;
+}
+
+.chat-window {
+  background: #fff;
+  height: 200px;
+  width: 250px;
+  border: 1px solid #acd8f0;
+  overflow: scroll;
+}
